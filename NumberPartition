@@ -1,0 +1,51 @@
+from sys import argv    #importing arvg library
+
+def QC_Computing2(input:str):       #QC_Computing2 Function definition
+    input = input.replace(' ','')   #Remove all spaces from input
+    input = input.replace('-','+-') #Replace all '-' symbols by '+-' from input
+    list1 = input.split('+')    #Takes input and organizes it into a list that has +1 / -1's seperated by '+' symbols
+    linear = {}             #Declare matrix for linear terms
+    quadratic = {}          #Declare matrix for quadratic terms
+    for i in list1:         #setting up for loop to analyze data in list 1
+        try:
+            if i.count('q')==1:     #If the qubit has a single degree...
+                tu = (i[i.index('q'):],i[i.index('q'):])    
+                a = i[:i.index('q')]
+                if a == '':     
+                    a = '1' + a     #the qubit is a binary 1
+                elif a == '-':
+                    a = '-1' + a    #the qubit is a binary 0 (-1)
+                linear[tu] = float(a)   #take 'a' and make it a float data type, then put in linear matrix at location 'tu'
+            elif i.count('q')==2:
+                tu = (i[i.index('q'):i.rfind('q')],i[i.rfind('q'):])
+                #print(i[:i.index('q')])
+                a = i[:i.index('q')]
+                if a == '':
+                    a = '1' + a     #the qubit is a binary 1
+                elif a == '-':
+                    a = '-1' + a    #the qubit is a binary 0 (-1)
+                quadratic[tu] = float(a)    #take 'a' and make it a float data type, then put in quadratic matrix at location 'tu'
+            elif i.count('q') >2:               # else if the term is raised above power 2
+                raise IOError(Exception)        #throws a error because variable is raised above power 2 (^2)
+        except IOError:
+            print("Error:more than two q items were detected, term: "+i)
+    return linear, quadratic
+
+# Converting the QUBO form from SymPy polynomial to string.
+def qubo_str(cost, N, globals):
+    cost = cost.expand()
+    for i in range(N):
+        #print(globals()[f'q{i}'])
+        cost = cost.replace(globals[f'q{i}']**2, globals[f'q{i}']).expand()
+        #pprint(cost)   
+        cost_str = str(cost)
+        cost_str = cost_str.replace('*', ' ')
+    return cost_str
+
+def qubo_form(cost, N, globals):
+    cost = cost.expand()
+    for i in range(N):
+        #print(globals()[f'q{i}'])
+        cost = cost.replace(globals[f'q{i}']**2, globals[f'q{i}']).expand()
+        #pprint(cost) 
+    return cost
